@@ -4,8 +4,8 @@
 #' Description here
 #'
 #' @param formula A formula object of the form y ~ x1 + ... + xk | z1 + ... + zk | w1 + ... wk, where x, z, and w denote endogenous, exogenous, and instrumental variables, respectively. To exclude exogenous variables, use -1.
-#' @param data The full data frame.
-#' @param support The full support of the right-hand side variables
+#' @param data The full data frame of class "data.frame"
+#' @param support The full support of the right-hand side variables of class "data.frame"
 #' @return An object of class "bcDAT" containing the formula, the full data frame, and the support data frame with attached probability vectors.
 #' @examples
 #'  ## Example from Gu and Russell (2021)

@@ -7,6 +7,8 @@
 #' @param f The arrangement sign vector.
 #' @param eliminate A list containing the monotonicity constraints.
 #' @return The A matrix and b vector for the linear system of equations Ax=b
+#' @examples
+#'
 #' @export
 make_constraints = function(data,f,eliminate){
 
