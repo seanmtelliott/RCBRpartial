@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #' Getbound
 #'
 #'
@@ -8,6 +9,18 @@
 #' @param data The full data frame of class "data.frame"
 #' @param support The full support of the right-hand side variables of class "data.frame"
 #' @return An object of class "bcDAT" containing the formula, the full data frame, and the support data frame with attached probability vectors.
+=======
+
+#' getbound
+#'
+#' description
+#'
+#' @param obj A formula object of the form y ~ x1 + ... + xk | z1 + ... + zk | w1 + ... wk, where x, z, and w denote endogenous, exogenous, and instrumental variables, respectively. To exclude exogenous variables, use -1.
+#' @param Acons The full data frame of class "data.frame"
+#' @param bcons The full support of the right-hand side variables of class "data.frame"
+#' @param verb description
+#' @return something returned
+>>>>>>> be04c7ded6523d6a57f6f4325582da99604261a3
 #' @examples
 #'  ## Example from Gu and Russell (2021)
 #' XZsupport <- doctor_data %>% select(ins,married,healthy,emp) %>% unique() %>% arrange(ins,married,healthy,emp)
