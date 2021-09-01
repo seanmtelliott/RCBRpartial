@@ -14,11 +14,15 @@ make_constraints(data, f, eliminate)
 \item{eliminate}{A list containing the monotonicity constraints.}
 }
 \value{
-The A matrix and b vector for the linear system of equations Ax=b
+The A matrix and b vector for the system of linear equations Ax=b
 }
 \description{
-Description here
+This function constructs constraints and bounds. The behaviour of this function is determined by the formula provided by the user
+in the process_data() function.
 }
 \examples{
-
+## The general case where no functional form is imposed.
+fsub <- list(SignVector = t(expand.grid(rep(list(c(-1,1)), nrow(XZsupport)))))
+eliset <- list( c(1, 5), c(1,7),c(3, 7),c(3,5))
+constraints <- make_constraints(data = processed_data, f = fsub, eliminate = eliset)
 }

@@ -1,14 +1,18 @@
 #' Make Constrains
 #'
 #'
-#' Description here
+#' This function constructs constraints and bounds. The behaviour of this function is determined by the formula provided by the user
+#' in the process_data() function.
 #'
 #' @param data A bcDAT object - the output from process_data()
 #' @param f The arrangement sign vector.
 #' @param eliminate A list containing the monotonicity constraints.
-#' @return The A matrix and b vector for the linear system of equations Ax=b
+#' @return The A matrix and b vector for the system of linear equations Ax=b
 #' @examples
-#'
+#' ## The general case where no functional form is imposed.
+#' fsub <- list(SignVector = t(expand.grid(rep(list(c(-1,1)), nrow(XZsupport)))))
+#' eliset <- list( c(1, 5), c(1,7),c(3, 7),c(3,5))
+#' constraints <- make_constraints(data = processed_data, f = fsub, eliminate = eliset)
 #' @export
 make_constraints = function(data,f,eliminate){
 
