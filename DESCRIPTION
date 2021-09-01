@@ -9,7 +9,7 @@ Authors@R:
            family = "Gu",
            role = c("aut", "cre"),
            email = "jiaying.gu@utoronto.ca")  )
-Description: 
+Description: Description here.
 License: `use_mit_license()`
 Encoding: UTF-8
 LazyData: true
