@@ -7,15 +7,20 @@
 process_data(formula, data, support)
 }
 \arguments{
-\item{formula}{Path to the input file}
+\item{formula}{A formula object of the form y ~ x1 + ... + xk | z1 + ... + zk | w1 + ... wk, where x, z, and w denote endogenous, exogenous, and instrumental variables, respectively. To exclude exogenous variables, use -1.}
 
-\item{data}{Path to the input file}
+\item{data}{The full data frame of class "data.frame"}
 
-\item{support}{Path to the input file}
+\item{support}{The full support of the right-hand side variables of class "data.frame"}
 }
 \value{
-An object
+An object of class "bcDAT" containing the formula, the full data frame, and the support data frame with attached probability vectors.
 }
 \description{
 Description here
+}
+\examples{
+ ## Example from Gu and Russell (2021)
+XZsupport <- doctor_data \%>\% select(ins,married,healthy,emp) \%>\% unique() \%>\% arrange(ins,married,healthy,emp)
+processed_data <- process_data(formula = doctor ~ ins | married + healthy | emp,data = doctor_data, support = XZsupport)
 }

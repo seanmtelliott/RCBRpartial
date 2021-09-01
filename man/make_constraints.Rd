@@ -7,15 +7,18 @@
 make_constraints(data, f, eliminate)
 }
 \arguments{
-\item{data}{Path to the input file}
+\item{data}{A bcDAT object - the output from process_data()}
 
-\item{f}{Path to the input file}
+\item{f}{The arrangement sign vector.}
 
-\item{eliminate}{Path to the input file}
+\item{eliminate}{A list containing the monotonicity constraints.}
 }
 \value{
-An object
+The A matrix and b vector for the linear system of equations Ax=b
 }
 \description{
 Description here
+}
+\examples{
+
 }
