@@ -1,3 +1,18 @@
+
+#' getbound
+#'
+#' description
+#'
+#' @param obj A formula object of the form y ~ x1 + ... + xk | z1 + ... + zk | w1 + ... wk, where x, z, and w denote endogenous, exogenous, and instrumental variables, respectively. To exclude exogenous variables, use -1.
+#' @param Acons The full data frame of class "data.frame"
+#' @param bcons The full support of the right-hand side variables of class "data.frame"
+#' @param verb description
+#' @return something returned
+#' @examples
+#'  ## Example from Gu and Russell (2021)
+#' XZsupport <- doctor_data %>% select(ins,married,healthy,emp) %>% unique() %>% arrange(ins,married,healthy,emp)
+#' processed_data <- process_data(formula = doctor ~ ins | married + healthy | emp,data = doctor_data, support = XZsupport)
+#' @export
 getbound <- function(obj, Acons, bcons, verb = 1){
   # solve for bound
   # use Rmosek
@@ -48,7 +63,7 @@ getbound_gurobi <- function(obj, Acons, bcons, verb = 1){
   # use Gurobi
   LB = list()
   LB$A = Acons
-  LB$obj = obj 
+  LB$obj = obj
   LB$sense = rep("=", nrow(Acons))
   LB$rhs = bcons
   LB$modelsense = "min"
@@ -92,7 +107,7 @@ getbound_gurobi <- function(obj, Acons, bcons, verb = 1){
 }
 
 gen_perturb <- function(Acons, perturb_support = c(-1e-06, 1e-06, 0, 1e-06)){
-  # perturb support contains four values: LB and UB for perturb_psi;  LB and UB for perturb_b, perturb_psi is the perturbation in the pobjective, perturb_b is the perturbation in the constraints. 
+  # perturb support contains four values: LB and UB for perturb_psi;  LB and UB for perturb_b, perturb_psi is the perturbation in the pobjective, perturb_b is the perturbation in the constraints.
   # need to convert all equality constraints of the form Acons %*% x = bcons, into Acons %*% x - bcons <= perturb_b1, -Acons %*% x + bcons <= perturb_b2
   dtheta = ncol(Acons)
   k <- nrow(Acons)
@@ -108,7 +123,7 @@ gen_perturb <- function(Acons, perturb_support = c(-1e-06, 1e-06, 0, 1e-06)){
 
 
 getbound_per <- function(obj, Acons, bcons, pervar, verb = 1){
-  # solves for the four perturbed LPs.  
+  # solves for the four perturbed LPs.
   # use Rmosek
   lb_m = list()
   lb_m$sense = "min"
@@ -189,13 +204,13 @@ getbound_per <- function(obj, Acons, bcons, pervar, verb = 1){
   }else{
     ubphat_p = rep(NA, length(obj))
     upperbound_p = NA
-  }	
+  }
   list(bound = c(lowerbound_m, lowerbound_p, upperbound_m, upperbound_p), phat = cbind(lbphat_m, lbphat_p, ubphat_m, ubphat_p), status = c(lbstatus_m, lbstatus_p, ubstatus_m, ubstatus_p))
 }
 
 
 getbound_per_gurobi <- function(obj, Acons, bcons, pervar, verb = 1){
-  # solves for the four perturbed LPs.  
+  # solves for the four perturbed LPs.
   # use Gurobi
   if (verb == 1){
     par <- list(OutputFlag = 0)
@@ -266,12 +281,12 @@ getbound_per_gurobi <- function(obj, Acons, bcons, pervar, verb = 1){
   }else{
     ubphat_p = rep(NA, length(obj))
     upperbound_p = NA
-  }	
+  }
   list(bound = c(lowerbound_m, lowerbound_p, upperbound_m, upperbound_p), phat = cbind(lbphat_m, lbphat_p, ubphat_m, ubphat_p))
 }
 
 getbound_per_relax <- function(obj, Acons, bcons, Aextra, bextra, pervar, verb = 1){
-  # solves for the four relaxed perturbed LPs. 
+  # solves for the four relaxed perturbed LPs.
   # Acons and bcons contains model and add up constraint [these constraints are not relaxed]
   # Aextra and bextra contains indep or/and mono constraint of the form Aextra %*% x <= bextra, -Aextra %*% x <= bextra [these are relaxed from equality to inequality with a slack
   lb_m = list()
@@ -353,6 +368,6 @@ getbound_per_relax <- function(obj, Acons, bcons, Aextra, bextra, pervar, verb =
   }else{
     ubphat_p = rep(NA, length(obj))
     upperbound_p = NA
-  }	
+  }
   list(bound = c(lowerbound_m, lowerbound_p, upperbound_m, upperbound_p), phat = cbind(lbphat_m, lbphat_p, ubphat_m, ubphat_p), status = c(lbstatus_m, lbstatus_p, ubstatus_m, ubstatus_p))
 }
