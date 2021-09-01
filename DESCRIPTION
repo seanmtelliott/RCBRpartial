@@ -2,14 +2,13 @@ Package: RCBRpartial
 Title: RCBRpartial
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "Sean",
+   c( person(given = "Sean",
            family = "Elliott",
-           role = c("aut", "cre"),
-           email = "sean.elliott@mail.utoronto.ca"),
+           role = c("aut")),
     person(given = "Jiaying",
            family = "Gu",
            role = c("aut", "cre"),
-           email = "jiaying.gu@utoronto.ca",
+           email = "jiaying.gu@utoronto.ca")  )
 Description: 
 License: `use_mit_license()`
 Encoding: UTF-8
