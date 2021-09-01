@@ -3,10 +3,10 @@
 #'
 #' Description here
 #'
-#' @param data Path to the input file
-#' @param f Path to the input file
-#' @param eliminate Path to the input file
-#' @return An object
+#' @param data A bcDAT object - the output from process_data()
+#' @param f The arrangement sign vector.
+#' @param eliminate A list containing the monotonicity constraints.
+#' @return The A matrix and b vector for the linear system of equations Ax=b
 #' @export
 make_constraints = function(data,f,eliminate){
 
