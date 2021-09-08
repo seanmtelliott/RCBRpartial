@@ -22,5 +22,5 @@ Depends:
   stats (>= 3.4.4),
   plyr (>= 1.8.4),
   dplyr (>= 1.0.6),
-  Formula (>= 1.2-4),
+  Formula (>= 1.2-3),
   prodlim (>= 2019.11.13)

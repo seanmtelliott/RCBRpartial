@@ -1,19 +1,18 @@
 
 #' getbound
 #'
-#' description
+#' calls Rmosek to solve for two linear programming problem for the identified set
 #'
-#' @param obj
-#' @param Acons description
-#' @param bcons description
-#' @param verb description
-#' @return something returned
+#' @param obj defines the linear coefficients of the linear objective function
+#' @param Acons defines the linear constraints in the form of Acons%*%x = bcons
+#' @param bcons defines the linear constraints in the form of Acons%*%x = bcons
+#' @param verb defines how much information of the optimization routine to be printed. Default is set at 1 for no print, change to 5 for full output print
+#' @return bound is the lower and upper bound of the value function, phat is the optimized solution for lower and upper bound, status records the status of the two optimization problem
 #' @examples
-#'  ## Example here
-#' example code
+#'  ## min/max_x obj'x s.t. Acons %*% x = bcons
 #' @export
 getbound <- function(obj, Acons, bcons, verb = 1){
-  # solve for bound
+  # solve for upper and lower bound of the parameter of interest
   # use Rmosek
   lb = list()
   lb$sense = "min"
@@ -56,9 +55,20 @@ getbound <- function(obj, Acons, bcons, verb = 1){
   list(bound = c(lowerbound, upperbound), phat = cbind(lbphat, ubphat), status = c(lbstatus, ubstatus))
 }
 
-
+#' getbound_gurobi
+#'
+#' calls gurobi to solve for two linear programming problem for the identified set
+#'
+#' @param obj defines the linear coefficients of the linear objective function
+#' @param Acons defines the linear constraints in the form of Acons%*%x = bcons
+#' @param bcons defines the linear constraints in the form of Acons%*%x = bcons
+#' @param verb defines how much information of the optimization routine to be printed. Default is set at 1 for no print, change to 5 for full output print
+#' @return bound is the lower and upper bound of the value function, phat is the optimized solution for lower and upper bound, status records the status of the two optimization problem
+#' @examples
+#'  ## min/max_x obj'x s.t. Acons %*% x = bcons
+#' @export
 getbound_gurobi <- function(obj, Acons, bcons, verb = 1){
-  # solve for bound
+  # solve for upper and lower bound of the parameter of interest
   # use Gurobi
   LB = list()
   LB$A = Acons
@@ -105,8 +115,76 @@ getbound_gurobi <- function(obj, Acons, bcons, verb = 1){
   list(bound = c(lowerbound, upperbound), phat = cbind(lbphat, ubphat))
 }
 
+#' getbound_consistent
+#'
+#' calls Rmosek to solve for two linear programming problem for the identified set with a small slack introduced on the constraints for consistent plug-in estimator of the identified set
+#'
+#' @param obj defines the linear coefficients of the linear objective function
+#' @param Acons defines the linear constraints in the form of Acons%*%x - bcons <= b_n
+#' @param bcons defines the linear constraints in the form of - Acons%*%x + bcons <= b_n
+#' @param verb defines how much information of the optimization routine to be printed. Default is set at 1 for no print, change to 5 for full output print
+#' @param slack defines the amount to slack b_n in the equality constraints to get consistent plug-in estimator of the identified set.
+#' @return bound is the lower and upper bound of the value function, phat is the optimized solution for lower and upper bound, status records the status of the two optimization problem
+#' @examples
+#'  ## min/max_x obj'x
+#'  s.t. Acons %*% x - bcons <= slack
+#'       Acons %*% x - bcons >= -slack
+#' @export
+getbound_consistent <- function(obj, Acons, bcons, slack, verb = 1){
+  # solve for bound
+  # use Rmosek
+  lb = list()
+  lb$sense = "min"
+  lb$c = obj
+  blx = c(rep(0, ncol(Acons)))
+  bux = c(rep(1, ncol(Acons)))
+  lb$bx = rbind(blx, bux)
+  lb$A = as(rbind(Acons,-Acons), 'dgCMatrix')
+  buc = c(bcons+slack, -bcons+slack)
+  blc = rep(-Inf, 2*length(bcons))
+  lb$bc = rbind(blc, buc)
+  rlb = mosek(lb, list(verbose = verb))
+  lbstatus = rlb$sol$bas$solsta
+  if (lbstatus == "OPTIMAL"){
+    lbphat = rlb$sol$bas$xx
+    lowerbound = obj%*% rlb$sol$bas$xx
+  }else{
+    lbphat = rep(NA, length(obj))
+    lowerbound = NA
+  }
+  ub = list()
+  ub$sense = "max"
+  ub$c = obj
+  blx = c(rep(0, ncol(Acons)))
+  bux = c(rep(1, ncol(Acons)))
+  ub$bx = rbind(blx, bux)
+  ub$A = as(rbind(Acons,-Acons), 'dgCMatrix')
+  buc = c(bcons + slack, -bcons+slack)
+  blc = rep(-Inf, 2*length(bcons))
+  ub$bc = rbind(blc, buc)
+  rub = mosek(ub, list(verbose = verb))
+  ubstatus = rub$sol$bas$solsta
+  if (ubstatus == "OPTIMAL"){
+    ubphat = rub$sol$bas$xx
+    upperbound = obj%*%rub$sol$bas$xx
+  }else{
+    ubphat = rep(NA, length(obj))
+    upperbound = NA
+  }
+  list(bound = c(lowerbound, upperbound), phat = cbind(lbphat, ubphat), status = c(lbstatus, ubstatus))
+}
+
+
+#' gen_perturb
+#'
+#' generate perturbation to apply Cho and Russell (2020)
+#'
+#' @param obj defines the linear coefficients of the linear objective function
+#' @param Acons defines the linear constraints in the form of Acons%*%x - bcons <= b_n
+#' @return per_b1 and per_b2 is the perturbation of two inequality (implied from the equality constraint) constraints, each of length equals to the number of constraints (i.e. nrows(Acons)). per_psi is the perturbation of the objective, of length equals to the number of variables (i.e. ncol(Acons)). per_r1 and per_r2 is the perturbation on the support of the variables, each of length the number of variables.
+#' @export
 gen_perturb <- function(Acons, perturb_support = c(-1e-06, 1e-06, 0, 1e-06)){
-  # perturb support contains four values: LB and UB for perturb_psi;  LB and UB for perturb_b, perturb_psi is the perturbation in the pobjective, perturb_b is the perturbation in the constraints.
+  # perturb support contains four values: LB and UB for perturb_psi;  LB and UB for perturb_b, perturb_psi is the perturbation in the objective, perturb_b is the perturbation in the constraints.
   # need to convert all equality constraints of the form Acons %*% x = bcons, into Acons %*% x - bcons <= perturb_b1, -Acons %*% x + bcons <= perturb_b2
   dtheta = ncol(Acons)
   k <- nrow(Acons)
@@ -120,7 +198,17 @@ gen_perturb <- function(Acons, perturb_support = c(-1e-06, 1e-06, 0, 1e-06)){
   return(list(per_b1 = perturb_b1, per_b2 = perturb_b2, per_psi = perturb_psi, per_r1 = perturb_r1, per_r2 = perturb_r2))
 }
 
-
+#' getbound_per
+#'
+#' Use Rmosek to solve four perturbed LP problems as proposed in Cho and Russell (2020) to get bias-corrected estimator for the identified set.
+#'
+#' @param obj defines the linear coefficients of the linear objective function
+#' @param Acons defines the linear constraints in the form of Acons%*%x = bcons
+#' @param pervar defines the perturbation as in Cho and Russell (2020).
+#' @return optimal value of the objective functions for the lower_minus, lower_plus, upper_minus, upper_plus LP problems. Definition see Cho and Russell (2020). phat are the associated optimal solutions and status is the solution status of the optimization problem.
+#' #' @examples
+#'  Suppose the original LP is min/max_x c'x s.t. A%*%x = b, Cho and Russell (2020) solves four perturbed LP. Details see Cho and Russell (2020).
+#' @export
 getbound_per <- function(obj, Acons, bcons, pervar, verb = 1){
   # solves for the four perturbed LPs.
   # use Rmosek
@@ -207,7 +295,17 @@ getbound_per <- function(obj, Acons, bcons, pervar, verb = 1){
   list(bound = c(lowerbound_m, lowerbound_p, upperbound_m, upperbound_p), phat = cbind(lbphat_m, lbphat_p, ubphat_m, ubphat_p), status = c(lbstatus_m, lbstatus_p, ubstatus_m, ubstatus_p))
 }
 
-
+#' getbound_per_gurobi
+#'
+#' Use gurobi to solve four perturbed LP problems as proposed in Cho and Russell (2020) to get bias-corrected estimator for the identified set.
+#'
+#' @param obj defines the linear coefficients of the linear objective function
+#' @param Acons defines the linear constraints in the form of Acons%*%x = bcons
+#' @param pervar defines the perturbation as in Cho and Russell (2020).
+#' @return optimal value of the objective functions for the lower_minus, lower_plus, upper_minus, upper_plus LP problems. Definition see Cho and Russell (2020). phat are the associated optimal solutions and status is the solution status of the optimization problem.
+#' #' @examples
+#'  Suppose the original LP is min/max_x c'x s.t. A%*%x = b, Cho and Russell (2020) solves four perturbed LP. Details see Cho and Russell (2020).
+#' @export
 getbound_per_gurobi <- function(obj, Acons, bcons, pervar, verb = 1){
   # solves for the four perturbed LPs.
   # use Gurobi
@@ -284,6 +382,28 @@ getbound_per_gurobi <- function(obj, Acons, bcons, pervar, verb = 1){
   list(bound = c(lowerbound_m, lowerbound_p, upperbound_m, upperbound_p), phat = cbind(lbphat_m, lbphat_p, ubphat_m, ubphat_p))
 }
 
+#' getbound_per_relax
+#'
+#' In the original LP, we allow relaxation of the IV assumption: Aextra %*% x = 0 to be
+#' Aextra %*% x <= bextra and
+#' Aextra %*% x >= -bextra
+#' while maintaining the equality constraints Acons %*% x = bcons.
+#' And then we solve the four perturbed LP problems as in Cho and Russell (2020) using Rmosek.
+#' @param obj defines the linear coefficients of the linear objective function
+#' @param Acons defines the linear constraints in the form of Acons%*%x = bcons
+#' @param bcons defines the linear constraints in the form of Acons%*%x = bcons
+#' @param Aextra defines the relaxed linear equality constraints in the form Aextra %*% x <= bextra and Aextra %% x >= -bextra
+#' @param bextra defines the amount of relaxation of the equality constraints.
+#' @param pervar defines the perturbation as in Cho and Russell (2020).
+#' @return optimal value of the objective functions for the lower_minus, lower_plus, upper_minus, upper_plus LP problems. Definition see Cho and Russell (2020). phat are the associated optimal solutions and status is the solution status of the optimization problem.
+#' #' @examples
+#' @examples
+#' Original LP is defined as
+#'  ## min/max_x obj'x
+#'  s.t. Acons %*% x - bcons = 0
+#'       Aextra %*% x <= bextra
+#'       Aextra %*% x >= -bextra
+#' We then define the four perturbed LP as in Cho and Russell (2020).
 getbound_per_relax <- function(obj, Acons, bcons, Aextra, bextra, pervar, verb = 1){
   # solves for the four relaxed perturbed LPs.
   # Acons and bcons contains model and add up constraint [these constraints are not relaxed]
@@ -370,3 +490,4 @@ getbound_per_relax <- function(obj, Acons, bcons, Aextra, bextra, pervar, verb =
   }
   list(bound = c(lowerbound_m, lowerbound_p, upperbound_m, upperbound_p), phat = cbind(lbphat_m, lbphat_p, ubphat_m, ubphat_p), status = c(lbstatus_m, lbstatus_p, ubstatus_m, ubstatus_p))
 }
+
