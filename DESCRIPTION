@@ -5,7 +5,7 @@ Description: Partial Identification of nonseparable Binary Response Models with 
 Version: 0.0.2
 Authors@R: c(
     person( "Jiaying", "Gu", email=  "jiaying.gu@utoronto.ca", role =  c("aut", "cre")),
-    person("Sean", "Elliott", email =  "sean.elliott@mail.utoronto.ca, role = "aut")
+    person("Sean", "Elliott", email =  "sean.elliott@mail.utoronto.ca", role = "aut")
     )
 Maintainer: Jiaying Gu <jiaying.gu@utoronto.ca>
 Depends: R (>= 2.10), Matrix
