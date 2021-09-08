@@ -1,25 +1,27 @@
 Package: RCBRpartial
-Title: RCBRpartial
+Title: Partial Identification of Random Coefficient Binary Response Model
+Description: Partial Identification of nonseparable Binary Response Models with Endogenous Regressors. Sharp bounds for counterfactual parameters. 
+    See J. Gu and T. Russell (20201) <https://arxiv.org/abs/2101.01254>.
 Version: 0.0.2
-Authors@R: 
-   c( person(given = "Sean",
-           family = "Elliott",
-           role = c("aut")),
-    person(given = "Jiaying",
-           family = "Gu",
-           role = c("aut", "cre"),
-           email = "jiaying.gu@utoronto.ca")  )
-Description: Description here.
-License: `use_mit_license()`
+Authors@R: c(
+    person( "Jiaying", "Gu", email=  "jiaying.gu@utoronto.ca", role =  c("aut", "cre")),
+    person("Sean", "Elliott", email =  "sean.elliott@mail.utoronto.ca, role = "aut")
+    )
+Maintainer: Jiaying Gu <jiaying.gu@utoronto.ca>
+Depends: R (>= 2.10), Matrix
+Suggests: knitr, digest
+Imports: rcdd, stats, RCBR, Rmosek, plyr, dplyr, Formula, prodlim
+LazyData: TRUE
+SystemRequirements: MOSEK (http://www.mosek.com) and MOSEK License for
+        use of Rmosek,
+License: GPL (>= 2)
+URL: https://www.r-project.org
+NeedsCompilation: no
 Encoding: UTF-8
-LazyData: true
-Roxygen: list(markdown = TRUE)
+Author: Jiaying Gu [aut, cre],
+  Sean Elliott [aut]
 RoxygenNote: 7.1.1
-Depends:
-  rcdd (>= 1.2-2),
-  Matrix (>= 1.2-12),
-  stats (>= 3.4.4),
-  plyr (>= 1.8.4),
-  dplyr (>= 1.0.6),
-  Formula (>= 1.2-3),
-  prodlim (>= 2019.11.13)
+Packaged: 2021-09-08 02:27:13 UTC; jiayinggu
+
+
+
