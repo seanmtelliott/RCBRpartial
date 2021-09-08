@@ -16,7 +16,6 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Depends:
-  RCBR (>= 0.5.9),
   rcdd (>= 1.2-2),
   Matrix (>= 1.2-12),
   stats (>= 3.4.4),
