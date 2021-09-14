@@ -200,7 +200,7 @@ makecons.ind.test = function(Hsupport, ind, f, pyxz, ivexo=TRUE){
       for(i in 1:(nrow(uniqueind)-1)){
         unique_z <- unique_z + 2
         matlistsub <- vector(mode = "list", length = ncol(pmat)/2)
-        psub <- matrix(pmat[1,unique_z],nrow=2) # is possible that probablilites are zero
+        psub <- matrix(pmat[(i+1),unique_z],nrow=2) # is possible that probablilites are zero
         psub_mat <- apply(psub,2,function(x) bdiag(replicate(mat_rows, t(x), simplify = FALSE)))
 
         # Where to insert initial rows
