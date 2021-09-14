@@ -8,9 +8,9 @@ Authors@R: c(
     person("Sean", "Elliott", email =  "sean.elliott@mail.utoronto.ca", role = "aut")
     )
 Maintainer: Jiaying Gu <jiaying.gu@utoronto.ca>
-Depends: R (>= 2.10), Matrix
+Depends: R (>= 2.10), Matrix, Formula, plyr, dplyr, prodlim
 Suggests: knitr, digest
-Imports: rcdd, stats, RCBR, Rmosek, plyr, dplyr, Formula, prodlim
+Imports: rcdd, stats, RCBR, Rmosek
 LazyData: TRUE
 SystemRequirements: MOSEK (http://www.mosek.com) and MOSEK License for
         use of Rmosek,
