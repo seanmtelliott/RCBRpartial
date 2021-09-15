@@ -17,7 +17,7 @@
 make_constraints = function(data,f,eliminate){
 
   # Rename objects from data processing module
-  OP <- data$support$P_y1 %>% na.omit() %>% unlist() %>% as.numeric()
+  OP <- (data$support %>% filter(y==1))$P_y1 %>% unlist() %>% as.numeric()
   pyxz <- data$support$P_exo %>% unlist() %>% as.numeric()
   ind <- data$exolist
 
