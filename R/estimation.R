@@ -134,7 +134,7 @@ getbound_consistent <- function(obj, constraints, slack, verb = 1){
 
   Acons = constraints$Aconsbig
   bcons = constraints$bconsbig
-  Acons = Matrix(Aconsbig, sparse = TRUE)
+  Acons = Matrix(Acons, sparse = TRUE)
 
   lb = list()
   lb$sense = "min"
