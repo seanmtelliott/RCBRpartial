@@ -85,7 +85,7 @@ make_constraints = function(data,f,eliminate){
     Aconsbig = rbind(AA1, AA3, AA4)
     bconsbig = c(bb1, bb3, bb4)
   }
-  list(Aconsbig = Aconsbig, bconsbig = bconsbig, AA.model = AA1, AA.indep = AA2, AA.addup = AA3, AA.mono = AA4, bb.model = bb1, bb.indep = bb2, bb.addup = bb3, bb.mono = bb4)
+  list(Aconsbig = Aconsbig, bconsbig = bconsbig, AA.model = AA1, AA.indep = AA2, AA.addup = AA3, AA.mono = AA4, bb.model = bb1, bb.indep = bb2, bb.addup = bb3, bb.mono = bb4, f=f)
 }
 
 

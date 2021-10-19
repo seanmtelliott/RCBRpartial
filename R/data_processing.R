@@ -19,7 +19,7 @@ process_data <- function(formula,data,support){
  # formula: y ~ endogenous | exogenous | instrument
  # assumption: a list of assumptions - could refer to those in the paper i.e. A1, A2, etc...
 
-  case_list <- parse.formula(formula)
+    case_list <- parse.formula(formula)
 
     YXZW <- as.data.frame(data[all.vars(formula)])
     XZW <- YXZW[,-1]
@@ -43,6 +43,13 @@ process_data <- function(formula,data,support){
 
     pvec <- pvec.process(data = list(YXZW,XZW), exolist = exolist, ivlist = ivlist, support = support)
 
+    # Counterfactual for endogenous variable
+    formula <- as.Formula(formula)
+    endolist <- all.vars(formula(formula,rhs=1)[[3]])
+    jset1 = which(support[endolist]==1)  #counterfactual of ins = 1
+    jset0 = which(support[endolist]==0) # counterfactual of ins = 0
+    jset <- list(jset1 = jset1,jset0 = jset0)
+
     output <- list()
     output[["formula"]] <- formula
     output[["case_list"]] <- case_list
@@ -50,6 +57,7 @@ process_data <- function(formula,data,support){
     output[["support"]] <- pvec$p_support
     output[["exolist"]] <- exolist
     output[["ivlist"]] <- ivlist
+    output[["counterfactual"]] <- jset
 
   class(output) <- "bcDAT"
 

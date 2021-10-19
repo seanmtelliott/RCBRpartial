@@ -1,4 +1,3 @@
-
 #' getbound
 #'
 #' calls Rmosek to solve for two linear programming problem for the identified set
@@ -120,8 +119,7 @@ getbound_gurobi <- function(obj, Acons, bcons, verb = 1){
 #' calls Rmosek to solve for two linear programming problem for the identified set with a small slack introduced on the constraints for consistent plug-in estimator of the identified set
 #'
 #' @param obj defines the linear coefficients of the linear objective function
-#' @param Acons defines the linear constraints in the form of Acons%*%x - bcons <= b_n
-#' @param bcons defines the linear constraints in the form of - Acons%*%x + bcons <= b_n
+#' @param constraints output from make_constraints() - defines the linear constraints in the form of A%*%x - b <= b_n
 #' @param verb defines how much information of the optimization routine to be printed. Default is set at 1 for no print, change to 5 for full output print
 #' @param slack defines the amount to slack b_n in the equality constraints to get consistent plug-in estimator of the identified set.
 #' @return bound is the lower and upper bound of the value function, phat is the optimized solution for lower and upper bound, status records the status of the two optimization problem
@@ -130,9 +128,14 @@ getbound_gurobi <- function(obj, Acons, bcons, verb = 1){
 #'  s.t. Acons %*% x - bcons <= slack
 #'       Acons %*% x - bcons >= -slack
 #' @export
-getbound_consistent <- function(obj, Acons, bcons, slack, verb = 1){
+getbound_consistent <- function(obj, constraints, slack, verb = 1){
   # solve for bound
   # use Rmosek
+
+  Acons = constraints$Aconsbig
+  bcons = constraints$bconsbig
+  Acons = Matrix(Aconsbig, sparse = TRUE)
+
   lb = list()
   lb$sense = "min"
   lb$c = obj
@@ -491,3 +494,103 @@ getbound_per_relax <- function(obj, Acons, bcons, Aextra, bextra, pervar, verb =
   list(bound = c(lowerbound_m, lowerbound_p, upperbound_m, upperbound_p), phat = cbind(lbphat_m, lbphat_p, ubphat_m, ubphat_p), status = c(lbstatus_m, lbstatus_p, ubstatus_m, ubstatus_p))
 }
 
+
+#' ATEobj
+#'
+#' Constructs the objective function to bound the ATE
+#'
+#' @param processed_data A bcDAT object which is the output of the process_data() function.
+#' @param constraints A list of constraints which is the output of the make_constraints() function. Only the hyperplane arrangement is used here.
+#' @return A numerical vector containing values of the objective function used to bound the ATE.
+#' @examples
+#' # process_data1 is output from process_data()
+#' # cons0 is output from make_constraints()
+#' objlam_ATE = ATEobj(processed_data = process_data1,constraints = cons0)
+#' @export
+ATEobj <- function(processed_data,constraints){
+  # zcol should be the columns in the XZsupport that belongs to the exogenous variables
+  # if P_yxzw has NA, set it to zero so that they drop out of the objective
+
+  jset1 <- processed_data$counterfactual$jset1
+  jset0 <- processed_data$counterfactual$jset0
+  fsub <- constraints$f
+  YXZWsupport <- processed_data$support %>% select(-c(P_all,P_exo,P_y1))
+  XZsupport <- YXZWsupport %>% select(-c(y)) %>% unique()
+  P_yxzw <- processed_data$support$P_all
+  zcol <- which(names(XZsupport)%in%processed_data$exolist)
+
+  P_yxzw[is.na(P_yxzw)] = 0
+  ATEcoef1 = NULL
+  for (j in 1:length(jset1)){
+    counf.index = jset1[j]
+    sign = 0.5 * (fsub$SignVector[counf.index,]+1)
+    signe = NULL
+    subset = which(apply(YXZWsupport, 1, function(x) identical(as.numeric(x[zcol+1]), as.numeric(XZsupport[counf.index,zcol]))))
+    for (q in 1:(length(subset)/2)){
+      signe = c(signe, kronecker(sign,c(P_yxzw[subset[(q-1)*2 + c(1:2)]])))
+    }
+    ATEcoef1 = c(ATEcoef1,signe)
+  }
+
+  ATEcoef0 = NULL
+  for (j in 1:length(jset0)){
+    counf.index = jset0[j]
+    sign = 0.5 * (fsub$SignVector[counf.index,]+1)
+    signe = NULL
+    subset = which(apply(YXZWsupport, 1, function(x) identical(as.numeric(x[zcol+1]), as.numeric(XZsupport[counf.index,zcol]))))
+    for (q in 1:(length(subset)/2)){
+      signe = c(signe, kronecker(sign,c(P_yxzw[subset[(q-1)*2 + c(1:2)]])))
+    }
+    ATEcoef0 = c(ATEcoef0,signe)
+  }
+  return(ATEcoef1 - ATEcoef0)
+}
+
+#' CCPy0obj
+#'
+#' Constructs the objective function to bound the CCP for Y=0
+#'
+#' @param processed_data A bcDAT object which is the output of the process_data() function.
+#' @param constraints A list of constraints which is the output of the make_constraints() function. Only the hyperplane arrangement is used here.
+#' @return A numerical vector containing values of the objective function used to bound the ATE.
+#' @examples
+#' objlam_CCPy0 = CCPy0obj(processed_data = process_data1,constraints = cons0)
+#' @export
+CCPy0obj = function(processed_data,constraints){
+  # zcol should be the columns in the XZsupport that belongs to the exogenous variables
+  # CCP_y0: P(varphi(1, z, theta,beta) >=0| Y = 0, X = 0) = \sum_{z, w} P(varphi(1, z,theta,beta)>=0|Y = 0, X = 0, Z = z, W = w) P(Z = z, W = w|Y = 0, X = 0)
+  # ATEcoef1 takes the form P(varphi(1, z, theta,beta> =0)) = \sum_{y,x,z,w} P(varphi(1,z,theta,beta)>=0|Y = y, X = x, Z = z, W = w) P(Y = y, X = x, Z = z, W = w)
+  # hence one strategy to get the CCP_y0 objective is to set P(Y = 0, X = 0, Z = z, W = w) to be its value and the rest to zero, and divide all vector by P(Y = 0, X = 0), which is simply to compute
+  # If P_yxzw has NA, meaning the values (y,x,z,w) is not realized in the data, then set it to zero so that it drops out of the objective
+
+  jset1 <- processed_data$counterfactual$jset1
+  jset0 <- processed_data$counterfactual$jset0
+  fsub <- constraints$f
+  datsub <- processed_data$data
+  YXZWsupport <- processed_data$support %>% select(-c(P_all,P_exo,P_y1))
+  XZsupport <- YXZWsupport %>% select(-c(y)) %>% unique()
+  P_yxzw <- processed_data$support$P_all
+  zcol <- which(names(XZsupport)%in%processed_data$exolist)
+  names(datsub) <- names(YXZWsupport)
+
+  CCPcoefy0 = NULL
+  P_y0x0 = sum(datsub$y==0 & datsub$ins==0)/nrow(datsub)
+  P_yxzw[is.na(P_yxzw)] = 0
+  for (j in 1:length(jset1)){
+    counf.index = jset1[j]
+    sign = 0.5 * (fsub$SignVector[counf.index,]+1)
+    signe = NULL
+    subset = which(apply(YXZWsupport, 1, function(x) identical(as.numeric(x[zcol +1]), as.numeric(XZsupport[counf.index,zcol]))))
+    for (q in 1:(length(subset)/2)){
+      tempq = subset[(q-1)*2 + c(1:2)]
+      tempp = P_yxzw[tempq]
+      tempd = YXZWsupport[tempq,]
+      tempi = which(tempd[,1]!=0|tempd[,2]!=0)
+      tempp[tempi]=0  # set P(Y = y, X = x, Z = z, W = w) = 0 for y!= 1 or x!=0
+      tempp = tempp/P_y0x0  # normalize by P(Y = 1, X = 0)
+      signe = c(signe, kronecker(sign,c(tempp)))
+    }
+    CCPcoefy0 = c(CCPcoefy0,signe)
+  }
+  return(CCPcoefy0)
+}
