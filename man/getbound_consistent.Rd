@@ -4,14 +4,12 @@
 \alias{getbound_consistent}
 \title{getbound_consistent}
 \usage{
-getbound_consistent(obj, Acons, bcons, slack, verb = 1)
+getbound_consistent(obj, constraints, slack, verb = 1)
 }
 \arguments{
 \item{obj}{defines the linear coefficients of the linear objective function}
 
-\item{Acons}{defines the linear constraints in the form of Acons\%*\%x - bcons <= b_n}
-
-\item{bcons}{defines the linear constraints in the form of - Acons\%*\%x + bcons <= b_n}
+\item{constraints}{output from make_constraints() - defines the linear constraints in the form of A%*%x - b <= b_n}
 
 \item{slack}{defines the amount to slack b_n in the equality constraints to get consistent plug-in estimator of the identified set.}
 

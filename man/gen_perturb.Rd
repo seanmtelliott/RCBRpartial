@@ -7,7 +7,7 @@
 gen_perturb(Acons, perturb_support = c(-1e-06, 1e-06, 0, 1e-06))
 }
 \arguments{
-\item{Acons}{defines the linear constraints in the form of Acons\%*\%x - bcons <= b_n}
+\item{Acons}{defines the linear constraints in the form of Acons%*%x - bcons <= b_n}
 
 \item{obj}{defines the linear coefficients of the linear objective function}
 }

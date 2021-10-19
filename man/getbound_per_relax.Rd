@@ -9,11 +9,11 @@ getbound_per_relax(obj, Acons, bcons, Aextra, bextra, pervar, verb = 1)
 \arguments{
 \item{obj}{defines the linear coefficients of the linear objective function}
 
-\item{Acons}{defines the linear constraints in the form of Acons\%*\%x = bcons}
+\item{Acons}{defines the linear constraints in the form of Acons%*%x = bcons}
 
-\item{bcons}{defines the linear constraints in the form of Acons\%*\%x = bcons}
+\item{bcons}{defines the linear constraints in the form of Acons%*%x = bcons}
 
-\item{Aextra}{defines the relaxed linear equality constraints in the form Aextra \%*\% x <= bextra and Aextra \%\% x >= -bextra}
+\item{Aextra}{defines the relaxed linear equality constraints in the form Aextra %*% x <= bextra and Aextra %% x >= -bextra}
 
 \item{bextra}{defines the amount of relaxation of the equality constraints.}
 
@@ -24,10 +24,10 @@ optimal value of the objective functions for the lower_minus, lower_plus, upper_
 #' @examples
 }
 \description{
-In the original LP, we allow relaxation of the IV assumption: Aextra \%\emph{\% x = 0 to be
-Aextra \%}\% x <= bextra and
-Aextra \%\emph{\% x >= -bextra
-while maintaining the equality constraints Acons \%}\% x = bcons.
+In the original LP, we allow relaxation of the IV assumption: Aextra %*% x = 0 to be
+Aextra %*% x <= bextra and
+Aextra %*% x >= -bextra
+while maintaining the equality constraints Acons %*% x = bcons.
 And then we solve the four perturbed LP problems as in Cho and Russell (2020) using Rmosek.
 }
 \examples{

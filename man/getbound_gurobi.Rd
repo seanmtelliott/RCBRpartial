@@ -9,9 +9,9 @@ getbound_gurobi(obj, Acons, bcons, verb = 1)
 \arguments{
 \item{obj}{defines the linear coefficients of the linear objective function}
 
-\item{Acons}{defines the linear constraints in the form of Acons\%*\%x = bcons}
+\item{Acons}{defines the linear constraints in the form of Acons%*%x = bcons}
 
-\item{bcons}{defines the linear constraints in the form of Acons\%*\%x = bcons}
+\item{bcons}{defines the linear constraints in the form of Acons%*%x = bcons}
 
 \item{verb}{defines how much information of the optimization routine to be printed. Default is set at 1 for no print, change to 5 for full output print}
 }
