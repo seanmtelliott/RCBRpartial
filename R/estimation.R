@@ -518,7 +518,7 @@ ATEobj <- function(processed_data,constraints){
   if(processed_data$case_list$insvars==F){
   XZsupport <- YXZWsupport %>% select(-c(y)) %>% unique()
   }else if(processed_data$case_list$insvars==T){
-  XZsupport <- YXZWsupport %>% select(-c(y)) %>% select(-all_of(ivlist)) %>% unique()
+  XZsupport <- YXZWsupport %>% select(-c(y)) %>% select(-all_of(processed_data$ivlist)) %>% unique()
   }
   P_yxzw <- processed_data$support$P_all
   zcol <- which(names(XZsupport)%in%processed_data$exolist)
