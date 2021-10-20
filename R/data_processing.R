@@ -36,19 +36,28 @@ process_data <- function(formula,data,support){
 
     exolist <- all.vars(formula(formula,rhs=2)[[3]])
     if(case_list$insvars==T){
-    ivlist <- all.vars(formula(formula,rhs=3)[[3]])}
-    else if(case_list$insvars==F){
+    ivlist <- all.vars(formula(formula,rhs=3)[[3]])
+    }else if(case_list$insvars==F){
       ivlist <- NULL
     }
 
     pvec <- pvec.process(data = list(YXZW,XZW), exolist = exolist, ivlist = ivlist, support = support)
 
     # Counterfactual for endogenous variable
+    if(case_list$insvars==F){
     formula <- as.Formula(formula)
     endolist <- all.vars(formula(formula,rhs=1)[[3]])
     jset1 = which(support[endolist]==1)  #counterfactual of ins = 1
     jset0 = which(support[endolist]==0) # counterfactual of ins = 0
     jset <- list(jset1 = jset1,jset0 = jset0)
+    }else if(case_list$insvars==T){
+      formula <- as.Formula(formula)
+      endolist <- all.vars(formula(formula,rhs=1)[[3]])
+      support_no_iv <- support[c(endolist,exolist[!exolist %in% ivlist])] %>% unique()
+      jset1 = which(support_no_iv[endolist]==1)  #counterfactual of ins = 1
+      jset0 = which(support_no_iv[endolist]==0) # counterfactual of ins = 0
+      jset <- list(jset1 = jset1,jset0 = jset0)
+    }
 
     output <- list()
     output[["formula"]] <- formula

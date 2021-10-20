@@ -515,7 +515,11 @@ ATEobj <- function(processed_data,constraints){
   jset0 <- processed_data$counterfactual$jset0
   fsub <- constraints$f
   YXZWsupport <- processed_data$support %>% select(-c(P_all,P_exo,P_y1))
+  if(processed_data$case_list$insvars==F){
   XZsupport <- YXZWsupport %>% select(-c(y)) %>% unique()
+  }else if(processed_data$case_list$insvars==T){
+  XZsupport <- YXZWsupport %>% select(-c(y)) %>% select(-all_of(ivlist)) %>% unique()
+  }
   P_yxzw <- processed_data$support$P_all
   zcol <- which(names(XZsupport)%in%processed_data$exolist)
 
@@ -568,7 +572,11 @@ CCPy0obj = function(processed_data,constraints){
   fsub <- constraints$f
   datsub <- processed_data$data
   YXZWsupport <- processed_data$support %>% select(-c(P_all,P_exo,P_y1))
-  XZsupport <- YXZWsupport %>% select(-c(y)) %>% unique()
+  if(processed_data$case_list$insvars==F){
+    XZsupport <- YXZWsupport %>% select(-c(y)) %>% unique()
+  }else if(processed_data$case_list$insvars==T){
+    XZsupport <- YXZWsupport %>% select(-c(y)) %>% select(-all_of(ivlist)) %>% unique()
+  }
   P_yxzw <- processed_data$support$P_all
   zcol <- which(names(XZsupport)%in%processed_data$exolist)
   names(datsub) <- names(YXZWsupport)
